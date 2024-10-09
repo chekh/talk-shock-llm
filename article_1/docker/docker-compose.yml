@@ -1,0 +1,38 @@
+services:
+  # Ollama сервис
+  ollama:
+    image: ollama/ollama:${OLLAMA_DOCKER_TAG}
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_WEBAPI_PORT}:${OLLAMA_WEBAPI_PORT}"  # Пробрасываем порт для доступа к API Ollama
+    networks:
+      - app-network
+    volumes:
+      - ${OLLAMA_DATA_DIR}:/root/.ollama
+
+  # Open WebUI сервис
+  open-webui:
+    image: chekh/open-webui:${WEBUI_DOCKER_TAG}
+    container_name: open-webui
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:${OLLAMA_WEBAPI_PORT}
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+      - ENABLE_IMAGE_GENERATION=${ENABLE_IMAGE_GENERATION}
+      - IMAGE_SIZE=${IMAGE_SIZE}
+      - IMAGE_STEPS=${IMAGE_STEPS}
+    ports:
+      - "${OPEN_WEBUI_PORT}:8080"
+    volumes:
+      - ${OPEN_WEBUI_DATA_DIR}:/app/backend/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
