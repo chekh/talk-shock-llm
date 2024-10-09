@@ -163,3 +163,5 @@ cython_debug/
 /article_1/logs/command.log
 /article_1/my_ml/
 !/article_1/docker/.env
+/project_data/
+/._.DS_Store
